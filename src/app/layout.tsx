@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist, Geist_Mono, M_PLUS_1p } from "next/font/google";
+import Header from "@/components/layout/header";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -10,6 +11,13 @@ const geistSans = Geist({
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
+});
+
+const mplus = M_PLUS_1p({
+  variable: "--font-mplus",
+  subsets: ["latin"],
+  weight: ["400", "700"],
+  display: "swap",
 });
 
 export const metadata: Metadata = {
@@ -23,11 +31,15 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="ja">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} ${mplus.variable} antialiased font-sans bg-gray-50`}
+        style={{ fontFamily: "var(--font-mplus), var(--font-geist-sans), sans-serif" }}
       >
-        {children}
+        <Header />
+        <main className="font-sans mt-16">
+          {children}
+        </main>
       </body>
     </html>
   );
