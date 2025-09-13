@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono, M_PLUS_1p } from "next/font/google";
 import Header from "@/components/layout/header";
 import "./globals.css";
+import Footer from "@/components/layout/footer";
+import Icons from "@/components/layout/icons";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -37,9 +39,11 @@ export default function RootLayout({
         style={{ fontFamily: "var(--font-mplus), var(--font-geist-sans), sans-serif" }}
       >
         <Header />
-        <main className="font-sans mt-16">
+        <main className="font-sans pt-32 min-h-screen">
           {children}
         </main>
+        <Icons />
+        <Footer />
       </body>
     </html>
   );
