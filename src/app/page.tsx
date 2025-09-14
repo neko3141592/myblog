@@ -29,8 +29,12 @@ export default function Home() {
 				}
 				const postsData = await postsRes.json();
 				setNewPosts(postsData.contents);
-			} catch (err: any) {
-				setError(err.message || "データの取得中にエラーが発生しました");
+					} catch (err) {
+						if (err instanceof Error) {
+							setError(err.message);
+						} else {
+							setError("データの取得中にエラーが発生しました");
+						}
 			} finally {
 				setLoading(false);
 			}
