@@ -2,7 +2,7 @@ services:
   neko3141592-blog:
     build: .
     ports:
-      - "3000:3000"
+      - "6080:6080"
     volumes:
       - .:/app
       - /app/node_modules
