@@ -8,7 +8,11 @@ interface Post {
     revisedAt: string;
     body?: string;
     tags?: [Tags];
-    image: string;
+    image: {
+        url: string;
+        height: number;
+        width: number;
+    }
 }
 
 interface Tags {

@@ -4,9 +4,9 @@ import Image from "next/image";
 
 export default function ProfileCard () {
     return (
-        <Card className="w-full rounded-sm ">
+        <Card className="w-full rounded-sm">
           <CardHeader>
-            <div className="flex items-center gap-4">
+            <div className="lg:flex  items-center gap-4">
               <Image
                 src="/neko3141592.png"
                 alt="プロフィール画像"
@@ -21,8 +21,8 @@ export default function ProfileCard () {
             </div>
           </CardHeader>
           <CardContent>
-            <p className="text-base mt-2">
-              趣味でブログを書いています。技術・日常・猫について発信中。
+            <p className="text-base">
+              趣味でブログを書いています。Web開発・日常などについて発信中。
             </p>
             
           </CardContent>

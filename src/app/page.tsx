@@ -1,29 +1,72 @@
+"use client";
+import { useEffect, useState } from "react";
 import TagList from "@/components/profile/TagList";
-import { getAllTags, getPostCount, getPosts } from "@/lib/microcms";
 import ProfileCard from "@/components/profile/ProfileCard";
 import PostCard from "@/components/posts/PostCard";
-import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-  CarouselPrevious,
-  CarouselNext,
-} from "@/components/ui/carousel";
-// ...existing code...
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
-export default async function Home() {
-	const allTags = await getAllTags().then((res) =>
-		res.contents.map((tag: { content: string }) => tag.content)
-	);
+export default function Home() {
+	const [allTags, setAllTags] = useState<string[]>([]);
+	const [newPosts, setNewPosts] = useState<Post[]>([]);
+	const [loading, setLoading] = useState(true);
+	const [error, setError] = useState<string | null>(null);
 
-	const postCount = await getPostCount();
-	console.log("記事数:", postCount);
+	useEffect(() => {
+		async function fetchData() {
+			setLoading(true);
+			setError(null);
+			try {
+				const tagsRes = await fetch("/api/tags");
+				if (!tagsRes.ok) {
+					throw new Error("データの取得中にエラーが発生しました");
+				}
+				const tagsData = await tagsRes.json();
+				setAllTags(tagsData.contents.map((tag: { content: string }) => tag.content));
 
-	const newPosts = await getPosts(
-		{ limit: 5, orders: "-publishedAt" }
-	)
-	.then((res) => res.contents);
-	console.log("新着記事:", newPosts);
+				const postsRes = await fetch("/api/posts");
+				if (!postsRes.ok) {
+					throw new Error("データの取得中にエラーが発生しました");
+				}
+				const postsData = await postsRes.json();
+				setNewPosts(postsData.contents);
+			} catch (err: any) {
+				setError(err.message || "データの取得中にエラーが発生しました");
+			} finally {
+				setLoading(false);
+			}
+		}
+		fetchData();
+	}, []);
+
+	const renderPosts = () => {
+		if (loading) {
+			return (
+				<div className="flex justify-center py-8 text-gray-400">
+					<svg className="animate-spin h-8 w-8 text-emerald-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+						<circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+						<path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+					</svg>
+				</div>
+			);
+		}
+		if (error) {
+			return (
+				<div className="flex py-8 text-red-500">
+					<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
+					<path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z" />
+					</svg>
+					<div className="pl-2">{error}</div>
+				</div>
+			);
+		}
+		return (
+			<div className="grid xl:grid-cols-3 sm:grid-cols-2 gap-8 pb-2">
+				{newPosts.map((post: Post) => (
+					<PostCard post={post} key={post.id} />
+				))}
+			</div>
+		);
+	};
 
 	return (
 		<main className="container flex flex-col md:flex-row gap-8 px-4 sm:px-0 mx-auto min-h-screen">
@@ -34,28 +77,17 @@ export default async function Home() {
 					<TagList className="mt-2" tags={allTags} />
 				</div>
 			</section>
-
 			<section className="md:w-3/4 w-full">
-				<div className="p-4 pt-6 border rounded bg-white">
-					<h1 className="border-l-8 border-blue-500 text-2xl mb-4 rounded-xs pl-2">
-						最新
-					</h1>
-          <div className="flex flex-col sm:flex-row gap-6 overflow-x-auto pb-2 relative">
-            {newPosts.map((post: Post) => (
-                <PostCard post={post} key={post.id} />
-            ))}
-          </div>
-				</div>
-				<div className="mt-4 p-4 pt-6 border rounded bg-white">
-					<h1 className="border-l-8 border-blue-500 text-2xl mb-4 rounded-xs pl-2">
-						おすすめ
-					</h1>
-          <div className="flex flex-col sm:flex-row gap-6 overflow-x-auto pb-2 relative">
-            {newPosts.map((post: Post) => (
-                <PostCard post={post} key={post.id} />
-            ))}
-          </div>
-				</div>
+				<Tabs defaultValue="account" className="w-full">
+					<TabsList className="mb-2 shadow-xs">
+						<TabsTrigger value="account">新しい順</TabsTrigger>
+						<TabsTrigger value="password">古い順</TabsTrigger>
+					</TabsList>
+					<TabsContent value="account">
+						{renderPosts()}
+					</TabsContent>
+					<TabsContent value="password">人気の投稿を表示します。</TabsContent>
+				</Tabs>
 			</section>
 		</main>
 	);
